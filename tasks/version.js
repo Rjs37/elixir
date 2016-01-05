@@ -47,8 +47,11 @@ Elixir.extend('version', function(src, buildPath) {
             .on('end', function() {
                 // We'll get rid of the duplicated file that
                 // usually gets put in the "build" folder,
-                // alongside the suffixed version.
-                del(files.paths, { force: true });
+                // alongside the suffixed version, just if
+                // buildFolder is different than publicPath
+                if (isExternalBuildPath(buildPath)) {
+                    del(files.paths, { force: true });
+                }
 
                 // We'll also copy over relevant sourcemap files.
                 copyMaps(paths.src.path, paths.output.baseDir);
@@ -119,3 +122,15 @@ var copyMaps = function(src, buildPath) {
         });
     });
 };
+
+/**
+ * Returns true if buildPath is different from publicPath, instead returns false
+ * @param buildPath
+ * @returns {boolean}
+ */
+var isExternalBuildPath = function(buildPath) {
+    var customBuildPath = buildPath || config.get('public.versioning.buildFolder');
+
+    return customBuildPath !== Elixir.config.publicPath;
+};
+
